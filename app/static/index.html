@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CertGuard • SSL/TLS Certificate Checker & Security Auditor</title>
+  <meta name="description" content="Verify SSL/TLS certificates, validate trust chains, check expiration dates, detect weak encryption configurations, and monitor certificate health.">
+  
+  <!-- Modern Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+
+  <!-- Top App Header -->
+  <header class="app-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <div class="brand-icon">🔒</div>
+        <div>
+          <div class="brand-title">CertGuard</div>
+          <div class="brand-subtitle">SSL/TLS Security Auditor</div>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="nav-tabs" role="tablist">
+        <button id="nav-btn-single" class="nav-tab-btn active" data-view="view-single">
+          <span>🔍</span> Single Host
+        </button>
+        <button id="nav-btn-batch" class="nav-tab-btn" data-view="view-batch">
+          <span>📑</span> Batch Scan
+        </button>
+        <button id="nav-btn-watchlist" class="nav-tab-btn" data-view="view-watchlist">
+          <span>📊</span> Watchlist
+        </button>
+        <button id="nav-btn-webhooks" class="nav-tab-btn" data-view="view-webhooks">
+          <span>🔔</span> Alerts & Webhooks
+        </button>
+      </nav>
+
+      <!-- Header Quick Actions -->
+      <div class="header-actions">
+        <button id="theme-toggle-btn" class="btn-icon" title="Toggle Theme" aria-label="Toggle Theme">
+          <span id="theme-icon">🌙</span>
+        </button>
+        <button id="btn-open-api-docs" class="btn-icon" title="API Documentation (Swagger)" onclick="window.open('/docs', '_blank')">
+          <span>📖</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-content container">
+
+    <!-- ==================== 1. SINGLE SCAN VIEW ==================== -->
+    <section id="view-single" class="view-section active">
+      
+      <!-- Hero -->
+      <div class="hero-section">
+        <h1 class="hero-title">Verify & Audit SSL/TLS Certificates</h1>
+        <p class="hero-description">Deep inspect X.509 certificates, validate trust chain hierarchies, check expiration timelines, and detect weak ciphers & vulnerabilities.</p>
+      </div>
+
+      <!-- Search Box -->
+      <div class="scan-box-card">
+        <form id="single-scan-form" class="scan-form" onsubmit="event.preventDefault(); window.app.handleSingleScan();">
+          <div class="input-group">
+            <span class="input-prefix-icon">🌐</span>
+            <input 
+              type="text" 
+              id="host-input" 
+              class="scan-input" 
+              placeholder="e.g. google.com, github.com or host:port" 
+              required
+              autocomplete="off"
+              spellcheck="false"
+            />
+          </div>
+          <input 
+            type="number" 
+            id="port-input" 
+            class="port-input" 
+            placeholder="Port" 
+            value="443" 
+            min="1" 
+            max="65535" 
+          />
+          <button type="submit" id="btn-run-scan" class="btn-primary">
+            <span>Scan Certificate</span> ➔
+          </button>
+        </form>
+
+        <!-- Benchmark Presets -->
+        <div class="presets-container">
+          <span class="presets-label">1-Click Benchmarks:</span>
+          <button type="button" class="preset-pill preset-success" onclick="window.app.loadPreset('google.com', 443)">Google (A+)</button>
+          <button type="button" class="preset-pill preset-success" onclick="window.app.loadPreset('github.com', 443)">GitHub (A+)</button>
+          <button type="button" class="preset-pill preset-danger" onclick="window.app.loadPreset('expired.badssl.com', 443)">Expired Test (F)</button>
+          <button type="button" class="preset-pill preset-danger" onclick="window.app.loadPreset('wrong.host.badssl.com', 443)">Wrong Host (F)</button>
+          <button type="button" class="preset-pill preset-danger" onclick="window.app.loadPreset('self-signed.badssl.com', 443)">Self-Signed (F)</button>
+          <button type="button" class="preset-pill preset-danger" onclick="window.app.loadPreset('rc4.badssl.com', 443)">Weak RC4 (F)</button>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div id="scan-loading" class="loading-state">
+        <div class="spinner"></div>
+        <div class="loading-text">Connecting and Inspecting SSL/TLS Certificate...</div>
+        <div class="loading-subtext">Validating trust chain, probing cipher suites & scanning for known TLS vulnerabilities</div>
+      </div>
+
+      <!-- Error State -->
+      <div id="scan-error-card" class="section-card" style="display: none; border-color: rgba(239, 68, 68, 0.4);">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <span style="font-size: 28px;">⚠️</span>
+          <div>
+            <h3 style="color: var(--color-danger); font-size: 16px;">Connection Failed</h3>
+            <p id="scan-error-msg" style="color: var(--text-secondary); font-size: 14px; margin-top: 4px;"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scan Results Dashboard -->
+      <div id="scan-results-wrapper" class="results-dashboard">
+        
+        <!-- Overview Banner -->
+        <div class="overview-banner">
+          <div class="grade-badge-box">
+            <div id="res-grade-letter" class="grade-letter">A+</div>
+            <div id="res-grade-status" class="grade-label">EXCELLENT</div>
+          </div>
+
+          <div class="overview-main">
+            <div class="target-header">
+              <span id="res-target-host" class="target-title">example.com:443</span>
+              <span id="res-status-badge" class="status-badge status-valid">VALID</span>
+              <span id="res-trust-badge" class="badge-pill strong">TRUSTED CA</span>
+            </div>
+
+            <!-- Expiration Bar -->
+            <div class="expiry-progress-container">
+              <div class="expiry-progress-bar">
+                <div id="res-expiry-fill" class="expiry-progress-fill" style="width: 70%; background: var(--color-success);"></div>
+              </div>
+              <div class="expiry-text">
+                <span id="res-days-left">82 Days Remaining</span>
+                <span id="res-expiry-date">Expires Nov 07, 2026</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Stats -->
+          <div class="quick-stats-grid">
+            <div class="quick-stat-card">
+              <div id="res-stat-score" class="quick-stat-val" style="color: var(--accent-primary);">96</div>
+              <div class="quick-stat-lbl">Security Score</div>
+            </div>
+            <div class="quick-stat-card">
+              <div id="res-stat-tls" class="quick-stat-val">TLS 1.3</div>
+              <div class="quick-stat-lbl">Protocol</div>
+            </div>
+            <div class="quick-stat-card">
+              <div id="res-stat-alerts" class="quick-stat-val" style="color: var(--color-warning);">0</div>
+              <div class="quick-stat-lbl">Alerts</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Certificate Chain Hierarchy -->
+        <div class="section-card">
+          <div class="section-title">
+            <span>Certificate Chain of Trust</span>
+            <span id="chain-length-badge" class="badge-pill">3 Certificates</span>
+          </div>
+          <div id="chain-graph-container" class="chain-graph-wrapper">
+            <!-- Dynamic Chain Nodes Injected via JS -->
+          </div>
+        </div>
+
+        <!-- Detail Tabs -->
+        <div class="section-card">
+          <div class="detail-tab-nav" role="tablist">
+            <button class="detail-tab-btn active" data-tab="tab-findings">🔔 Findings & Alerts</button>
+            <button class="detail-tab-btn" data-tab="tab-vulns">🛡️ Vulnerability Audit</button>
+            <button class="detail-tab-btn" data-tab="tab-ciphers-matrix">🔐 Supported Ciphers Matrix</button>
+            <button class="detail-tab-btn" data-tab="tab-cert-details">📋 Certificate Details</button>
+            <button class="detail-tab-btn" data-tab="tab-headers">🌐 HTTP & HSTS</button>
+            <button class="detail-tab-btn" data-tab="tab-raw">📄 Raw PEM & Hashes</button>
+          </div>
+
+          <!-- Tab 1: Findings & Alerts -->
+          <div id="tab-findings" class="tab-pane active">
+            <div id="findings-list" class="alerts-container">
+              <!-- Rendered Alerts -->
+            </div>
+          </div>
+
+          <!-- Tab 2: Vulnerability Audit (Feature 1) -->
+          <div id="tab-vulns" class="tab-pane">
+            <div style="margin-bottom: 16px;">
+              <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 6px;">Known TLS Vulnerabilities & Exploit Defenses</h3>
+              <p style="font-size: 13px; color: var(--text-secondary);">Probes server resilience against famous cryptographic attacks and verifies advanced TLS speed & privacy extensions.</p>
+            </div>
+
+            <div id="vulns-cards-grid" class="protocols-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+              <!-- Dynamically populated via JS -->
+            </div>
+          </div>
+
+          <!-- Tab 3: Supported Ciphers Matrix (Feature 1) -->
+          <div id="tab-ciphers-matrix" class="tab-pane">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+              <div>
+                <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 4px;">Supported Cipher Suites Catalog</h3>
+                <p style="font-size: 13px; color: var(--text-secondary);">Complete list of encryption algorithms accepted by this server.</p>
+              </div>
+              <div id="cipher-stats-pills" style="display: flex; gap: 6px;">
+                <!-- Populated via JS -->
+              </div>
+            </div>
+
+            <div class="data-table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Cipher Suite Name</th>
+                    <th>Protocol</th>
+                    <th>Key Exchange</th>
+                    <th>Encryption</th>
+                    <th>Forward Secrecy</th>
+                    <th>Security Rating</th>
+                  </tr>
+                </thead>
+                <tbody id="ciphers-matrix-body">
+                  <!-- Populated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Tab 4: Certificate Details -->
+          <div id="tab-cert-details" class="tab-pane">
+            <table class="property-table">
+              <tbody>
+                <tr>
+                  <td class="property-label">Common Name (CN)</td>
+                  <td id="prop-cn" class="property-value code-font">-</td>
+                </tr>
+                <tr>
+                  <td class="property-label">Subject Organization (O)</td>
+                  <td id="prop-org" class="property-value">-</td>
+                </tr>
+                <tr>
+                  <td class="property-label">Issuer Authority</td>
+                  <td id="prop-issuer" class="property-value">-</td>
+                </tr>
+                <tr>
+                  <td class="property-label">Subject Alternative Names</td>
+                  <td id="prop-sans" class="property-value">-</td>
+                </tr>
+                <tr>
+                  <td class="property-label">Validity Window</td>
+                  <td id="prop-validity" class="property-value">-</td>
+                </tr>
+                <tr>
+                  <td class="property-label">Public Key Specs</td>
+                  <td id="prop-pubkey" class="property-value code-font">-</td>
+                </tr>
+                <tr>
+                  <td class="property-label">Signature Algorithm</td>
+                  <td id="prop-sigalgo" class="property-value code-font">-</td>
+                </tr>
+                <tr>
+                  <td class="property-label">Serial Number</td>
+                  <td id="prop-serial" class="property-value code-font">-</td>
+                </tr>
+                <tr>
+                  <td class="property-label">Key Usages</td>
+                  <td id="prop-keyusage" class="property-value">-</td>
+                </tr>
+                <tr>
+                  <td class="property-label">Extended Key Usages (EKU)</td>
+                  <td id="prop-eku" class="property-value">-</td>
+                </tr>
+                <tr>
+                  <td class="property-label">OCSP URLs</td>
+                  <td id="prop-ocsp" class="property-value code-font">-</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Tab 5: HTTP & HSTS -->
+          <div id="tab-headers" class="tab-pane">
+            <table class="property-table">
+              <tbody>
+                <tr>
+                  <td class="property-label">HSTS Status</td>
+                  <td id="hdr-hsts-status" class="property-value">-</td>
+                </tr>
+                <tr>
+                  <td class="property-label">HSTS Max-Age</td>
+                  <td id="hdr-hsts-age" class="property-value">-</td>
+                </tr>
+                <tr>
+                  <td class="property-label">HSTS Preload Directive</td>
+                  <td id="hdr-hsts-preload" class="property-value">-</td>
+                </tr>
+                <tr>
+                  <td class="property-label">Include Subdomains</td>
+                  <td id="hdr-hsts-subdomains" class="property-value">-</td>
+                </tr>
+                <tr>
+                  <td class="property-label">HTTP to HTTPS Redirect</td>
+                  <td id="hdr-redirect" class="property-value">-</td>
+                </tr>
+                <tr>
+                  <td class="property-label">Raw HSTS Header</td>
+                  <td id="hdr-raw-hsts" class="property-value code-font">-</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Tab 6: Raw PEM & Hashes -->
+          <div id="tab-raw" class="tab-pane">
+            <table class="property-table" style="margin-bottom: 16px;">
+              <tbody>
+                <tr>
+                  <td class="property-label">SHA-256 Fingerprint</td>
+                  <td id="hash-sha256" class="property-value code-font">-</td>
+                </tr>
+                <tr>
+                  <td class="property-label">SHA-1 Fingerprint</td>
+                  <td id="hash-sha1" class="property-value code-font">-</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-weight: 600; font-size: 13px;">X.509 Certificate (PEM Format)</span>
+              <div style="display: flex; gap: 8px;">
+                <button id="btn-copy-pem" class="btn-secondary" onclick="window.app.copyPem()">📋 Copy PEM</button>
+                <button id="btn-download-cert" class="btn-secondary" onclick="window.app.downloadCert()">💾 Download .crt</button>
+              </div>
+            </div>
+            <textarea id="raw-pem-text" class="pem-textarea" readonly></textarea>
+          </div>
+        </div>
+
+        <!-- Export Toolbar -->
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+          <button id="btn-export-json" class="btn-secondary" onclick="window.app.exportJson()">💾 Export JSON</button>
+          <button id="btn-export-md" class="btn-secondary" onclick="window.app.exportMarkdown()">📝 Export Markdown</button>
+          <button id="btn-export-print" class="btn-secondary" onclick="window.print()">🖨️ Print / Save PDF</button>
+          <button id="btn-add-watchlist" class="btn-primary" onclick="window.app.addCurrentToWatchlist()">⭐ Add to Watchlist</button>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ==================== 2. BATCH SCAN VIEW ==================== -->
+    <section id="view-batch" class="view-section">
+      <div class="hero-section">
+        <h2 class="hero-title">Multi-Domain Batch SSL Scanner</h2>
+        <p class="hero-description">Audit dozens of hostnames simultaneously to track expiring certificates across your organization.</p>
+      </div>
+
+      <div class="scan-box-card">
+        <div style="margin-bottom: 12px;">
+          <label style="font-size: 13px; font-weight: 600; color: var(--text-secondary);">Enter Domain Names (One per line or comma separated):</label>
+        </div>
+        <textarea 
+          id="batch-domains-input" 
+          class="pem-textarea" 
+          style="height: 120px; margin-bottom: 14px;" 
+          placeholder="google.com&#10;github.com&#10;cloudflare.com&#10;expired.badssl.com&#10;self-signed.badssl.com"
+        >google.com
+github.com
+cloudflare.com
+expired.badssl.com
+wrong.host.badssl.com
+self-signed.badssl.com</textarea>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 13px; color: var(--text-muted);" id="batch-count-info">6 targets ready</span>
+          <button id="btn-start-batch" class="btn-primary" onclick="window.app.runBatchScan()">
+            <span>Run Batch Audit</span> ➔
+          </button>
+        </div>
+      </div>
+
+      <div id="batch-results-wrapper" class="section-card" style="display: none;">
+        <div class="section-title">
+          <span>Batch Audit Results</span>
+          <button class="btn-secondary" onclick="window.app.exportBatchCsv()">📥 Export CSV</button>
+        </div>
+        <div class="data-table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Target Host</th>
+                <th>Security Grade</th>
+                <th>Status</th>
+                <th>Days Remaining</th>
+                <th>Expires On</th>
+                <th>Issuer</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="batch-table-body">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ==================== 3. WATCHLIST VIEW ==================== -->
+    <section id="view-watchlist" class="view-section">
+      <div class="hero-section">
+        <h2 class="hero-title">Continuous Domain Watchlist</h2>
+        <p class="hero-description">Track infrastructure certificates, detect upcoming expirations before outages happen, and monitor trust health.</p>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title">
+          <span>Monitored Domains</span>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-secondary" onclick="window.app.openAddTargetModal()">➕ Add Domain</button>
+            <button id="btn-scan-all-watchlist" class="btn-primary" onclick="window.app.scanAllWatchlist()">🔄 Scan All Now</button>
+          </div>
+        </div>
+
+        <div class="data-table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Label / Domain</th>
+                <th>Port</th>
+                <th>Grade</th>
+                <th>Health Status</th>
+                <th>Days Remaining</th>
+                <th>Last Scanned</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="watchlist-table-body">
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ==================== 4. ALERTS & WEBHOOKS VIEW ==================== -->
+    <section id="view-webhooks" class="view-section">
+      <div class="hero-section">
+        <h2 class="hero-title">Automated Alerts & Webhooks</h2>
+        <p class="hero-description">Integrate SSL certificate expiry alerts and vulnerability reports into Slack, Discord, MS Teams, or Custom Webhooks.</p>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title">Webhook Alert Dispatcher</div>
+        <form id="webhook-test-form" onsubmit="event.preventDefault(); window.app.sendTestWebhook();">
+          <div style="display: grid; grid-template-columns: 1fr 200px; gap: 12px; margin-bottom: 16px;">
+            <div>
+              <label style="font-size: 13px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">Webhook Endpoint URL:</label>
+              <input 
+                type="url" 
+                id="webhook-url-input" 
+                class="scan-input" 
+                style="padding-left: 14px;" 
+                placeholder="https://hooks.slack.com/services/... or https://discord.com/api/webhooks/..." 
+                required
+              />
+            </div>
+            <div>
+              <label style="font-size: 13px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">Platform:</label>
+              <select id="webhook-type-select" class="scan-input" style="padding-left: 14px; cursor: pointer;">
+                <option value="slack">Slack</option>
+                <option value="discord">Discord</option>
+                <option value="teams">Microsoft Teams</option>
+                <option value="generic">Generic JSON Webhook</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px;">
+            <button type="submit" id="btn-send-webhook" class="btn-primary">🚀 Send Test Alert Payload</button>
+            <button type="button" class="btn-secondary" onclick="window.app.openEmailPreviewModal()">📧 Preview HTML Email Digest</button>
+          </div>
+        </form>
+
+        <div id="webhook-result-box" style="display: none; margin-top: 16px; padding: 14px; border-radius: var(--radius-md); background: var(--bg-input);">
+          <span id="webhook-result-text" class="code-font" style="font-size: 13px;"></span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Add Target Modal -->
+  <div id="modal-add-target" class="modal-backdrop">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">Add Domain to Watchlist</h3>
+        <button class="modal-close-btn" onclick="window.app.closeModal('modal-add-target')">✕</button>
+      </div>
+      <form id="form-add-target" onsubmit="event.preventDefault(); window.app.submitAddTarget();">
+        <div style="margin-bottom: 14px;">
+          <label style="font-size: 13px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">Domain / Hostname:</label>
+          <input type="text" id="target-host-add" class="scan-input" style="padding-left: 14px;" placeholder="e.g. api.mycompany.com" required />
+        </div>
+        <div style="margin-bottom: 14px;">
+          <label style="font-size: 13px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">Port:</label>
+          <input type="number" id="target-port-add" class="scan-input" style="padding-left: 14px;" value="443" required />
+        </div>
+        <div style="margin-bottom: 20px;">
+          <label style="font-size: 13px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">Custom Label (Optional):</label>
+          <input type="text" id="target-label-add" class="scan-input" style="padding-left: 14px;" placeholder="e.g. Core Payment Gateway" />
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn-secondary" onclick="window.app.closeModal('modal-add-target')">Cancel</button>
+          <button type="submit" class="btn-primary">Save to Watchlist</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Email Preview Modal -->
+  <div id="modal-email-preview" class="modal-backdrop">
+    <div class="modal-box" style="max-width: 720px;">
+      <div class="modal-header">
+        <h3 class="modal-title">HTML Email Alert Preview</h3>
+        <button class="modal-close-btn" onclick="window.app.closeModal('modal-email-preview')">✕</button>
+      </div>
+      <div id="email-preview-container" style="border: 1px solid var(--border-color); border-radius: var(--radius-md); overflow: hidden; background: #0f172a;">
+        <!-- Injected HTML -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Message Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
