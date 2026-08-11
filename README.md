@@ -136,3 +136,4 @@ JOVAC/
 
 ## 🛡️ License
 MIT License. Built for cybersecurity engineers, devops teams, and infrastructure administrators.
+Feature: Add core analyzer
