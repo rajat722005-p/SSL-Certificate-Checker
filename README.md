@@ -139,3 +139,4 @@ MIT License. Built for cybersecurity engineers, devops teams, and infrastructure
 Feature: Add core analyzer
 Feature: Add API routes
 Feature: Add monitoring module
+Feature: Add watchlist data
