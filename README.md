@@ -2,6 +2,8 @@
 
 An enterprise-grade SSL/TLS Certificate Verification, Trust Chain Inspection, and Security Auditing suite. It performs deep cryptographic analysis of remote and local X.509 certificates, validates complete trust chains against the Mozilla Root CA store, monitors expiration countdowns, audits cipher suites and protocols for vulnerabilities, computes an SSL Labs-style rating (**A+ to F**), and dispatches automated alerts.
 
+## 🔗 Live Demo
+🔗 **[https://ssl-certificate-checker-2p19.onrender.com/](https://ssl-certificate-checker-2p19.onrender.com/)** — Try it live, no install needed.
 ---
 
 ## 🌟 Key Features
