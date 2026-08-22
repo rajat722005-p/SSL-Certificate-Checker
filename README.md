@@ -74,6 +74,35 @@ python ssl_checker_cli.py google.com -o google_report.md
 python ssl_checker_cli.py -f domains.txt
 ```
 
+## Deploy on Render
+
+### Option A: Blueprint deploy (recommended)
+
+1. Push this project to a GitHub repository. Make sure `requirements.txt` and `render.yaml` are included.
+2. Open [render.com](https://render.com), create an account, and select **New +** > **Blueprint**.
+3. Connect the GitHub repository and select the branch containing `render.yaml`.
+4. Click **Apply**. Render will install the dependencies and run `python run_server.py`.
+5. Open the generated `https://<service-name>.onrender.com` URL. API documentation is available at `/docs`.
+
+### Option B: Manual Web Service
+
+Create a **Web Service** from the repository with these values:
+
+```text
+Runtime: Python 3
+Build Command: pip install -r requirements.txt
+Start Command: python run_server.py
+Health Check Path: /docs
+```
+
+Do not hard-code a port in Render. `run_server.py` automatically uses Render's `PORT` environment variable.
+
+### Important production notes
+
+- Render's default filesystem is ephemeral. The `data/watchlist.json` watchlist can reset after a redeploy or restart. Use a database or a persistent disk if watchlist data must survive.
+- Before making the service public, restrict CORS origins in `app/main.py` and add authentication/rate limiting for the API.
+- Test the live service with `https://<service-name>.onrender.com/` and `https://<service-name>.onrender.com/docs`.
+
 ---
 
 ## 🧪 Testing with BadSSL Benchmarks
