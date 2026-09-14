@@ -1,0 +1,20 @@
+{
+  "engine_version": "2.1.0",
+  "last_sync": "2026-09-14 03:58:58 UTC",
+  "supported_protocols": [
+    "TLSv1.2",
+    "TLSv1.3"
+  ],
+  "cipher_suites_audited": 19,
+  "root_ca_bundle": {
+    "authorities_count": 144,
+    "revocation_cache_ttl_seconds": 3600,
+    "ocsp_stapling_enabled": true
+  },
+  "heuristics": {
+    "expiry_warning_threshold_days": 30,
+    "critical_warning_threshold_days": 7,
+    "max_handshake_timeout_seconds": 5.0,
+    "concurrent_workers": 8
+  }
+}
