@@ -1,0 +1,36 @@
+name: Daily Natural Developer Activity & Streak Maintainer
+
+on:
+  schedule:
+    # Staggered developer check-ins at irregular minute offsets across natural hours (UTC)
+    # 02:41, 07:18, 11:52, 16:24, 20:37 UTC (~08:11 AM, 12:48 PM, 05:22 PM, 09:54 PM, 02:07 AM IST)
+    - cron: '41 2,7,11,16,20 * * *'
+  workflow_dispatch: # Allows manual trigger anytime from GitHub Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  developer-activity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout SSL-Certificate-Checker Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: true
+          fetch-depth: 40
+
+      - name: Set up Python Environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Organic Timing Jitter Delay
+        run: |
+          # Adds randomized 10s to 120s delay so commits never land on the exact same second
+          python -c "import time, random; sec = random.randint(10, 120); print(f'Waiting {sec}s for natural developer timing...'); time.sleep(sec)"
+
+      - name: Execute Organic Developer Commit Generator
+        run: |
+          python .github/scripts/random_dev_commit.py
