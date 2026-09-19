@@ -17,9 +17,9 @@
     "port": 443,
     "label": "Google Main",
     "created_at": "2026-08-16T14:29:20.929032+00:00",
-    "last_scan": null,
+    "last_scan": "2026-09-19 07:32:23 UTC",
     "last_grade": "A+",
-    "last_days_remaining": null,
+    "last_days_remaining": 64,
     "last_status": "PENDING"
   },
   {
