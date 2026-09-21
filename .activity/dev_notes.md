@@ -1,5 +1,5 @@
 # SSL Checker Dev Notes
 
-- Updated: `2026-09-20 14:50:53 UTC`
-- Notes: Validated SAN wildcard matching against multi-subdomain certs.
+- Updated: `2026-09-21 08:12:37 UTC`
+- Notes: Cleaned up CLI output formatting for cleaner terminal tables.
 - Status: All tests passing.
