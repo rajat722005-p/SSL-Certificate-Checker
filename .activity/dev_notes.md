@@ -1,5 +1,5 @@
 # SSL Checker Dev Notes
 
-- Updated: `2026-09-21 17:11:49 UTC`
-- Notes: Verified SSL context creation with Python 3.12 default ssl module.
+- Updated: `2026-09-22 07:56:42 UTC`
+- Notes: Tested async socket timeout with slow domains; 5s limit works reliably.
 - Status: All tests passing.
