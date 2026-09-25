@@ -1,5 +1,5 @@
 # SSL Checker Dev Notes
 
-- Updated: `2026-09-24 07:49:13 UTC`
-- Notes: Validated SAN wildcard matching against multi-subdomain certs.
+- Updated: `2026-09-25 08:10:16 UTC`
+- Notes: Checked watchlist load time with 100+ sample domains.
 - Status: All tests passing.
