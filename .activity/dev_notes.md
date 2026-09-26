@@ -1,5 +1,5 @@
 # SSL Checker Dev Notes
 
-- Updated: `2026-09-25 08:10:16 UTC`
-- Notes: Checked watchlist load time with 100+ sample domains.
+- Updated: `2026-09-26 08:00:41 UTC`
+- Notes: Tested async socket timeout with slow domains; 5s limit works reliably.
 - Status: All tests passing.
