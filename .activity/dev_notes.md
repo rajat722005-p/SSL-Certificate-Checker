@@ -1,5 +1,5 @@
 # SSL Checker Dev Notes
 
-- Updated: `2026-09-27 15:48:24 UTC`
-- Notes: Validated SAN wildcard matching against multi-subdomain certs.
+- Updated: `2026-09-28 08:57:25 UTC`
+- Notes: Verified SSL context creation with Python 3.12 default ssl module.
 - Status: All tests passing.
