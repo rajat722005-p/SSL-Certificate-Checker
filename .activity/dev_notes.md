@@ -1,5 +1,5 @@
 # SSL Checker Dev Notes
 
-- Updated: `2026-10-01 00:10:58 UTC`
-- Notes: Checked watchlist load time with 100+ sample domains.
+- Updated: `2026-10-02 00:11:47 UTC`
+- Notes: Cleaned up CLI output formatting for cleaner terminal tables.
 - Status: All tests passing.
