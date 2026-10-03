@@ -98,5 +98,16 @@
     "last_grade": "A+",
     "last_days_remaining": 68,
     "last_status": "VALID"
+  },
+  {
+    "id": "b191227fa53c",
+    "host": "wikipedia.org",
+    "port": 443,
+    "label": "Wikimedia Production",
+    "created_at": "2026-10-03 00:00:37 UTC",
+    "last_scan": "2026-10-03 00:00:37 UTC",
+    "last_grade": "A+",
+    "last_days_remaining": 66,
+    "last_status": "VALID"
   }
 ]
