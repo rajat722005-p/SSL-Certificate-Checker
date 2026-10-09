@@ -109,5 +109,16 @@
     "last_grade": "A+",
     "last_days_remaining": 66,
     "last_status": "VALID"
+  },
+  {
+    "id": "5382ea29ea61",
+    "host": "untrusted-root.badssl.com",
+    "port": 443,
+    "label": "BadSSL - Untrusted Root",
+    "created_at": "2026-10-09 09:36:30 UTC",
+    "last_scan": "2026-10-09 09:36:30 UTC",
+    "last_grade": "F",
+    "last_days_remaining": 0,
+    "last_status": "EXPIRED"
   }
 ]
