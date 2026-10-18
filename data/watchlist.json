@@ -127,7 +127,7 @@
     "port": 443,
     "label": "BadSSL Test Bed",
     "created_at": "2026-10-13 09:44:42 UTC",
-    "last_scan": "2026-10-13 09:44:42 UTC",
+    "last_scan": "2026-10-18 12:12:03 UTC",
     "last_grade": "A",
     "last_days_remaining": 77,
     "last_status": "VALID"

@@ -1,5 +1,5 @@
 # SSL Checker Dev Notes
 
-- Updated: `2026-10-18 07:25:13 UTC`
-- Notes: Verified ASN.1 date parsing across standard Let's Encrypt and DigiCert chains.
+- Updated: `2026-10-18 12:12:03 UTC`
+- Notes: Validated SAN wildcard matching against multi-subdomain certs.
 - Status: All tests passing.
