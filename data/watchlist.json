@@ -116,7 +116,7 @@
     "port": 443,
     "label": "BadSSL - Untrusted Root",
     "created_at": "2026-10-09 09:36:30 UTC",
-    "last_scan": "2026-10-29 00:22:23 UTC",
+    "last_scan": "2026-10-31 08:51:40 UTC",
     "last_grade": "F",
     "last_days_remaining": 83,
     "last_status": "EXPIRED"
