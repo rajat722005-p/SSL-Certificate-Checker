@@ -1,5 +1,5 @@
 # SSL Checker Dev Notes
 
-- Updated: `2026-11-01 17:14:59 UTC`
-- Notes: Cleaned up CLI output formatting for cleaner terminal tables.
+- Updated: `2026-11-02 09:56:02 UTC`
+- Notes: Verified SSL context creation with Python 3.12 default ssl module.
 - Status: All tests passing.
