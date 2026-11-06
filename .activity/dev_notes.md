@@ -1,5 +1,5 @@
 # SSL Checker Dev Notes
 
-- Updated: `2026-11-05 09:49:11 UTC`
-- Notes: Verified ASN.1 date parsing across standard Let's Encrypt and DigiCert chains.
+- Updated: `2026-11-06 01:07:08 UTC`
+- Notes: Checked watchlist load time with 100+ sample domains.
 - Status: All tests passing.
