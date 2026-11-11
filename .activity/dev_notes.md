@@ -1,5 +1,5 @@
 # SSL Checker Dev Notes
 
-- Updated: `2026-11-10 10:20:58 UTC`
-- Notes: Cleaned up CLI output formatting for cleaner terminal tables.
+- Updated: `2026-11-11 00:54:02 UTC`
+- Notes: Tested async socket timeout with slow domains; 5s limit works reliably.
 - Status: All tests passing.
