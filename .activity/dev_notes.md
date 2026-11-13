@@ -1,5 +1,5 @@
 # SSL Checker Dev Notes
 
-- Updated: `2026-11-12 01:59:46 UTC`
-- Notes: Verified ASN.1 date parsing across standard Let's Encrypt and DigiCert chains.
+- Updated: `2026-11-13 01:28:16 UTC`
+- Notes: Verified SSL context creation with Python 3.12 default ssl module.
 - Status: All tests passing.
