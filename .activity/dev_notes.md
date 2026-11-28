@@ -1,5 +1,5 @@
 # SSL Checker Dev Notes
 
-- Updated: `2026-11-28 02:57:21 UTC`
-- Notes: Verified ASN.1 date parsing across standard Let's Encrypt and DigiCert chains.
+- Updated: `2026-11-28 16:23:58 UTC`
+- Notes: Cleaned up CLI output formatting for cleaner terminal tables.
 - Status: All tests passing.
