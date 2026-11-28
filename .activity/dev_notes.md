@@ -1,5 +1,5 @@
 # SSL Checker Dev Notes
 
-- Updated: `2026-11-27 03:16:55 UTC`
-- Notes: Tested async socket timeout with slow domains; 5s limit works reliably.
+- Updated: `2026-11-28 02:57:21 UTC`
+- Notes: Verified ASN.1 date parsing across standard Let's Encrypt and DigiCert chains.
 - Status: All tests passing.
